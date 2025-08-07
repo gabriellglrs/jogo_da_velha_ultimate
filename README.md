@@ -1,3 +1,10 @@
+<img width=100% src="https://capsule-render.vercel.app/api?type=waving&color=4C89F8&height=120&section=header"/>
+
+<img width="1584" height="396" alt="LinkedIn cover - 29" src="https://github.com/user-attachments/assets/d1c05723-0bec-4ce7-8dee-1ef8c95ebf3e" />
+
+<br>
+<br>
+
 # Ultimate Tic-Tac-Toe
 
 Um jogo de Ultimate Tic-Tac-Toe (Jogo da Velha Infinito) desenvolvido em Pygame, com múltiplos modos de jogo, incluindo um modo contra a CPU com diferentes níveis de dificuldade, e uma interface de usuário redesenhada para uma melhor experiência.
@@ -95,4 +102,13 @@ Sinta-se à vontade para contribuir com melhorias, correções de bugs ou novas 
 Este projeto está licenciado sob a [SUA LICENÇA AQUI, ex: MIT License].
 
 ---
+
+ <br>
+
+ <br>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/ed7208b8-6bdc-4c82-98aa-8c8cb9c1428f" height="150"/>
+</div>
+
+<img width=100% src="https://capsule-render.vercel.app/api?type=waving&color=4C89F8&height=120&section=footer"/>
 
