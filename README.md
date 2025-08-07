@@ -47,7 +47,7 @@ pip install pygame
 ```
 
 ### Execução
-1. Baixe o arquivo `ultimate_tictactoe_wide_layout.py` para o seu computador.
+1. Baixe o arquivo `python ultimate_tic_tac_toe.py  ` para o seu computador.
 2. Abra um terminal ou prompt de comando na pasta onde você salvou o arquivo.
 3. Execute o jogo com o seguinte comando:
 
