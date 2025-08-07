@@ -52,7 +52,7 @@ pip install pygame
 3. Execute o jogo com o seguinte comando:
 
 ```bash
-python ultimate_tictactoe_wide_layout.py
+python ultimate_tic_tac_toe.py  
 ```
 
 ## 🕹️ Controles
