@@ -1,7 +1,12 @@
 # Ultimate Tic-Tac-Toe
 
 Um jogo de Ultimate Tic-Tac-Toe (Jogo da Velha Infinito) desenvolvido em Pygame, com múltiplos modos de jogo, incluindo um modo contra a CPU com diferentes níveis de dificuldade, e uma interface de usuário redesenhada para uma melhor experiência.
-
+<br>
+<br>
+<img width="1205" height="735" alt="image" src="https://github.com/user-attachments/assets/43a0f06c-6940-48f1-996b-c49e3204cd40" />
+<img width="1210" height="743" alt="image" src="https://github.com/user-attachments/assets/6f8a6beb-0e9c-4633-ac31-f43c608b280a" />
+<br>
+<br>
 ## ✨ Funcionalidades
 
 ### 🎮 Modos de Jogo
