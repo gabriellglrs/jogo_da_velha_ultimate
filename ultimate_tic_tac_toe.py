@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygame
 import sys
 import math
@@ -8,7 +9,6 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, List
 import os
 
-
 # --- Enums e Classes de Dados ---
 class Player(Enum):
     X = 'X'
@@ -16,18 +16,15 @@ class Player(Enum):
     EMPTY = ' '
     TIE = '-'
 
-
 class GameState(Enum):
     PLAYING = "playing"
     X_WINS = "x_wins"
     O_WINS = "o_wins"
     TIE = "tie"
 
-
 class GameMode(Enum):
     HUMAN_VS_HUMAN = "human_vs_human"
     HUMAN_VS_CPU = "human_vs_cpu"
-
 
 @dataclass
 class GameStats:
@@ -35,7 +32,6 @@ class GameStats:
     o_wins: int = 0
     ties: int = 0
     total_games: int = 0
-
 
 # --- Constantes Melhoradas ---
 # Cores com paleta moderna
@@ -54,40 +50,45 @@ class Colors:
     HOVER = (200, 200, 200, 100)
     CPU_COLOR = (255, 140, 0)  # Laranja para CPU fácil/médio
     HARD_CPU_COLOR = (255, 69, 0)  # Vermelho-laranja para CPU difícil
+    CREDITS_BG = (40, 44, 52)  # Fundo dos créditos
+    CREDITS_TEXT = (171, 178, 191)  # Texto dos créditos
 
+# Configurações de tela
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 
-# Configurações de tela ajustadas para layout mais largo
-SCREEN_WIDTH = 1200  # Muito mais largo
-SCREEN_HEIGHT = 700  # Altura reduzida
-BOARD_SIZE = 600  # Tabuleiro quadrado 600x600
-CELL_SIZE = BOARD_SIZE // 3  # 200 pixels cada célula principal
-SUB_CELL_SIZE = CELL_SIZE // 3  # ~66.67 pixels cada subcélula
+# Cálculo dinâmico do tabuleiro baseado no tamanho da tela
+BOARD_SIZE = 800  # Um valor fixo que fica bem em 1920x1080
+CELL_SIZE = BOARD_SIZE // 3
+SUB_CELL_SIZE = CELL_SIZE // 3
 
 # Configurações visuais
-LINE_WIDTH = 6
-SUB_LINE_WIDTH = 2
+LINE_WIDTH = max(6, int(BOARD_SIZE * 0.01))
+SUB_LINE_WIDTH = max(2, int(BOARD_SIZE * 0.003))
 SYMBOL_SIZE = int(SUB_CELL_SIZE * 0.35)
 LARGE_SYMBOL_SIZE = int(CELL_SIZE * 0.3)
 
-# Posicionamento da UI - laterais
-SIDEBAR_WIDTH = 250
+# Posicionamento da UI - adaptável
+SIDEBAR_WIDTH = min(300, SCREEN_WIDTH * 0.2)
 LEFT_SIDEBAR_X = 50
-RIGHT_SIDEBAR_X = SCREEN_WIDTH - SIDEBAR_WIDTH - 10  # Adicionado 20px de espaçamento
-BOARD_X = (SCREEN_WIDTH - BOARD_SIZE) // 2  # Centralizado
-BOARD_Y = 50  # Margem superior
+RIGHT_SIDEBAR_X = SCREEN_WIDTH - SIDEBAR_WIDTH - 50
+BOARD_X = (SCREEN_WIDTH - BOARD_SIZE) // 2
+BOARD_Y = max(80, (SCREEN_HEIGHT - BOARD_SIZE) // 2 - 50)
 
 # Configurações dos botões
-BUTTON_HEIGHT = 40
-BUTTON_WIDTH = 200
-BUTTON_MARGIN = 10
+BUTTON_HEIGHT = 45
+BUTTON_WIDTH = min(220, SIDEBAR_WIDTH - 20)
+BUTTON_MARGIN = 15
+
+# Área dos créditos
+CREDITS_HEIGHT = 120
+CREDITS_Y = SCREEN_HEIGHT - CREDITS_HEIGHT
 
 # Arquivo para salvar estatísticas
 STATS_FILE = "ultimate_tictactoe_stats.json"
 
-
 class CPUPlayer:
     """Classe para lógica da CPU com diferentes níveis de dificuldade."""
-
     def __init__(self, difficulty="medium"):
         self.difficulty = difficulty
         self.player = Player.O  # CPU sempre joga como O
@@ -414,12 +415,11 @@ class CPUPlayer:
 
         return False
 
-
 class UltimateTicTacToe:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('Ultimate Tic-Tac-Toe - Layout Largo')
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
+        pygame.display.set_caption('Ultimate Tic-Tac-Toe - by Gabriel Lucas Rodrigues Souza')
 
         # Estado do jogo
         self.boards = self.create_boards()
@@ -429,6 +429,10 @@ class UltimateTicTacToe:
         self.last_move = None
         self.hover_cell = None
 
+        # Contador de vitórias para desempate
+        self.small_wins_x = 0
+        self.small_wins_o = 0
+
         # Modo de jogo e CPU
         self.game_mode = GameMode.HUMAN_VS_HUMAN
         self.cpu_player = CPUPlayer("medium")
@@ -436,11 +440,27 @@ class UltimateTicTacToe:
         self.cpu_think_timer = 0
         self.cpu_move_delay = 1000
 
-        # UI
-        self.font_large = pygame.font.Font(None, 42)
-        self.font_medium = pygame.font.Font(None, 32)
-        self.font_small = pygame.font.Font(None, 24)
-        self.font_tiny = pygame.font.Font(None, 20)
+        # UI - fontes adaptáveis ao tamanho da tela
+        font_scale = 1.2  # Aumentado de 1.0 para 1.2 para fontes maiores
+        try:
+            # Tenta carregar a fonte Noto Sans (suporta emojis)
+            font_path = "fonts/NotoSans-Regular.ttf"
+            if not os.path.exists(font_path):
+                raise FileNotFoundError(f"Fonte {font_path} não encontrada")
+            self.font_large = pygame.font.Font(font_path, int(60 * font_scale))
+            self.font_medium = pygame.font.Font(font_path, int(36 * font_scale))
+            self.font_small = pygame.font.Font(font_path, int(24 * font_scale))
+            self.font_tiny = pygame.font.Font(font_path, int(20 * font_scale))
+            self.font_credits = pygame.font.Font(font_path, int(18 * font_scale))
+        except (pygame.error, FileNotFoundError) as e:
+            # Fallback para fonte padrão com tamanhos escalados
+            print(f"Aviso: Não foi possível carregar a fonte Noto Sans. Usando fonte padrão. Erro: {e}")
+            self.font_large = pygame.font.Font(None, int(60 * font_scale))
+            self.font_medium = pygame.font.Font(None, int(36 * font_scale))
+            self.font_small = pygame.font.Font(None, int(24 * font_scale))
+            self.font_tiny = pygame.font.Font(None, int(20 * font_scale))
+            self.font_credits = pygame.font.Font(None, int(18 * font_scale))
+
         self.clock = pygame.time.Clock()
 
         # Estatísticas
@@ -458,15 +478,15 @@ class UltimateTicTacToe:
         buttons = {}
 
         # Botões da lateral esquerda - Controles do jogo
-        left_buttons = ['restart', 'new_game', 'clear_stats']
+        left_buttons = ['restart', 'new_game', 'clear_stats', 'exit']
         for i, name in enumerate(left_buttons):
-            y = 100 + i * (BUTTON_HEIGHT + BUTTON_MARGIN)
+            y = 120 + i * (BUTTON_HEIGHT + BUTTON_MARGIN)
             buttons[name] = pygame.Rect(LEFT_SIDEBAR_X, y, BUTTON_WIDTH, BUTTON_HEIGHT)
 
         # Botões da lateral direita - Modos de jogo
         right_buttons = ['vs_human', 'vs_cpu_easy', 'vs_cpu_medium', 'vs_cpu_hard']
         for i, name in enumerate(right_buttons):
-            y = 100 + i * (BUTTON_HEIGHT + BUTTON_MARGIN)
+            y = 120 + i * (BUTTON_HEIGHT + BUTTON_MARGIN)
             buttons[name] = pygame.Rect(RIGHT_SIDEBAR_X, y, BUTTON_WIDTH, BUTTON_HEIGHT)
 
         return buttons
@@ -515,6 +535,21 @@ class UltimateTicTacToe:
         """Verifica se um tabuleiro está cheio."""
         return all(cell != Player.EMPTY for row in board for cell in row)
 
+    def count_small_wins(self):
+        """Conta vitórias nos tabuleiros pequenos."""
+        x_wins = 0
+        o_wins = 0
+
+        for main_row in range(3):
+            for main_col in range(3):
+                winner = self.main_board[main_row][main_col]
+                if winner == Player.X:
+                    x_wins += 1
+                elif winner == Player.O:
+                    o_wins += 1
+
+        return x_wins, o_wins
+
     def make_move(self, main_row: int, main_col: int, row: int, col: int) -> bool:
         """Executa uma jogada se for válida."""
         board_index = self.get_board_index(main_row, main_col)
@@ -537,6 +572,11 @@ class UltimateTicTacToe:
         winner = self.check_winner(self.boards[board_index])
         if winner:
             self.main_board[main_row][main_col] = winner
+            # Atualiza contador de vitórias pequenas
+            if winner == Player.X:
+                self.small_wins_x += 1
+            elif winner == Player.O:
+                self.small_wins_o += 1
         elif self.is_board_full(self.boards[board_index]):
             self.main_board[main_row][main_col] = Player.TIE
 
@@ -552,8 +592,19 @@ class UltimateTicTacToe:
             self.stats.total_games += 1
             self.save_stats()
         elif self.is_board_full(self.main_board):
-            self.game_state = GameState.TIE
-            self.stats.ties += 1
+            # Verifica empate no jogo maior
+            # Determina vencedor por mais vitórias nos jogos menores
+            if self.small_wins_x > self.small_wins_o:
+                self.game_state = GameState.X_WINS
+                self.stats.x_wins += 1
+            elif self.small_wins_o > self.small_wins_x:
+                self.game_state = GameState.O_WINS
+                self.stats.o_wins += 1
+            else:
+                # Empate real (mesmo número de vitórias pequenas)
+                self.game_state = GameState.TIE
+                self.stats.ties += 1
+
             self.stats.total_games += 1
             self.save_stats()
 
@@ -591,6 +642,9 @@ class UltimateTicTacToe:
         self.last_move = None
         self.hover_cell = None
         self.cpu_thinking = False
+        # Reset dos contadores de vitórias pequenas
+        self.small_wins_x = 0
+        self.small_wins_o = 0
 
     def set_game_mode(self, mode: GameMode, difficulty: str = "medium"):
         """Define o modo de jogo."""
@@ -700,7 +754,7 @@ class UltimateTicTacToe:
 
     def draw_x(self, x: float, y: float, size: float, color: tuple):
         """Desenha um X estilizado."""
-        thickness = 4
+        thickness = max(4, int(size * 0.15))
         pygame.draw.line(self.screen, color,
                          (x - size, y - size), (x + size, y + size), thickness)
         pygame.draw.line(self.screen, color,
@@ -708,7 +762,7 @@ class UltimateTicTacToe:
 
     def draw_o(self, x: float, y: float, size: float, color: tuple):
         """Desenha um O estilizado."""
-        thickness = 4
+        thickness = max(4, int(size * 0.15))
         pygame.draw.circle(self.screen, color, (int(x), int(y)), int(size), thickness)
 
     def draw_main_winners(self):
@@ -746,15 +800,15 @@ class UltimateTicTacToe:
 
     def draw_status(self):
         """Desenha informações de status no centro superior."""
-        y_pos = 10
+        y_pos = 20
 
-        # Status do jogo
+        # Status do jogo (com fallback para texto simples)
         if self.game_state == GameState.PLAYING:
             if self.cpu_thinking:
                 if self.cpu_player.difficulty == "hard":
-                    text = "🧠 CPU está pensando profundamente..."
+                    text = "CPU está pensando profundamente..."  # Removido 🧠
                 else:
-                    text = "🤖 CPU está pensando..."
+                    text = "CPU está pensando..."  # Removido 🤖
                 color = Colors.HARD_CPU_COLOR if self.cpu_player.difficulty == "hard" else Colors.CPU_COLOR
             elif self.game_mode == GameMode.HUMAN_VS_CPU:
                 if self.current_player == Player.X:
@@ -768,34 +822,42 @@ class UltimateTicTacToe:
                 color = Colors.RED if self.current_player == Player.X else Colors.BLUE
         elif self.game_state == GameState.X_WINS:
             if self.game_mode == GameMode.HUMAN_VS_CPU:
-                text = "🎉 Você VENCEU! 🎉"
+                text = "Você VENCEU!"  # Removido 🎉
             else:
-                text = "🎉 Jogador X VENCEU! 🎉"
+                text = "Jogador X VENCEU!"  # Removido 🎉
             color = Colors.RED
         elif self.game_state == GameState.O_WINS:
             if self.game_mode == GameMode.HUMAN_VS_CPU:
-                text = f"🤖 CPU VENCEU! 🤖"
+                text = "CPU VENCEU!"  # Removido 🤖
             else:
-                text = "🎉 Jogador O VENCEU! 🎉"
-            color = Colors.BLUE  # O sempre azul
+                text = "Jogador O VENCEU!"  # Removido 🎉
+            color = Colors.BLUE
         else:
-            text = "⚖️ EMPATE! ⚖️"
+            text = "EMPATE!"  # Removido ⚖️
             color = Colors.DARK_GRAY
 
         rendered_text = self.font_medium.render(text, True, color)
         text_rect = rendered_text.get_rect(center=(SCREEN_WIDTH // 2, y_pos + 15))
         self.screen.blit(rendered_text, text_rect)
 
+        # Mostra contador de vitórias pequenas durante o jogo
+        if self.game_state == GameState.PLAYING:
+            wins_text = f"Vitórias pequenas - X: {self.small_wins_x} | O: {self.small_wins_o}"
+            wins_rendered = self.font_small.render(wins_text, True, Colors.DARK_GRAY)
+            wins_rect = wins_rendered.get_rect(center=(SCREEN_WIDTH // 2, y_pos + 50))
+            self.screen.blit(wins_rendered, wins_rect)
+
     def draw_buttons(self):
         """Desenha botões da interface nas laterais."""
         button_texts = {
-            'restart': 'Reiniciar',
-            'new_game': 'Novo Jogo',
-            'clear_stats': 'Limpar Stats',
-            'vs_human': 'vs Humano',
-            'vs_cpu_easy': 'CPU Fácil',
-            'vs_cpu_medium': 'CPU Médio',
-            'vs_cpu_hard': 'CPU Difícil'
+            'restart': 'Reiniciar',  # Removido 🔄
+            'new_game': 'Novo Jogo',  # Removido 🆕
+            'clear_stats': 'Limpar Stats',  # Removido 🗑️
+            'exit': 'Sair',  # Removido ❌
+            'vs_human': 'vs Humano',  # Removido 👥
+            'vs_cpu_easy': 'CPU Fácil',  # Removido 🤖
+            'vs_cpu_medium': 'CPU Médio',  # Removido 🧠
+            'vs_cpu_hard': 'CPU Difícil'  # Removido 👨‍💻
         }
 
         for name, rect in self.buttons.items():
@@ -822,8 +884,8 @@ class UltimateTicTacToe:
                 color = Colors.LIGHT_GRAY
 
             # Fundo do botão
-            pygame.draw.rect(self.screen, color, rect, border_radius=5)
-            pygame.draw.rect(self.screen, Colors.DARK_GRAY, rect, 2, border_radius=5)
+            pygame.draw.rect(self.screen, color, rect, border_radius=8)
+            pygame.draw.rect(self.screen, Colors.DARK_GRAY, rect, 3, border_radius=8)
 
             # Texto do botão
             text_color = Colors.WHITE if is_current_mode else Colors.BLACK
@@ -834,56 +896,51 @@ class UltimateTicTacToe:
     def draw_sidebar_info(self):
         """Desenha informações nas laterais."""
         # Lateral esquerda - Título dos controles
-        title_left = self.font_medium.render("CONTROLES", True, Colors.BLACK)
-        self.screen.blit(title_left, (LEFT_SIDEBAR_X, 60))
+        title_left = self.font_medium.render("CONTROLES", True, Colors.BLACK)  # Removido ⚙️
+        self.screen.blit(title_left, (LEFT_SIDEBAR_X, 80))
 
         # Lateral direita - Título dos modos
-        title_right = self.font_medium.render("MODOS DE JOGO", True, Colors.BLACK)
-        self.screen.blit(title_right, (RIGHT_SIDEBAR_X, 60))
+        title_right = self.font_medium.render("MODOS DE JOGO", True, Colors.BLACK)  # Removido 🎮
+        self.screen.blit(title_right, (RIGHT_SIDEBAR_X, 80))
 
         # Estatísticas na lateral esquerda (abaixo dos botões)
-        stats_y = 300
-        stats_title = self.font_medium.render("ESTATÍSTICAS", True, Colors.BLACK)
+        stats_y = max(350, BOARD_Y + BOARD_SIZE // 3)
+        stats_title = self.font_medium.render("ESTATÍSTICAS", True, Colors.BLACK)  # Removido 📊
         self.screen.blit(stats_title, (LEFT_SIDEBAR_X, stats_y))
 
         stats_text = [
-            f"Vitórias X: {self.stats.x_wins}",
-            f"Vitórias O: {self.stats.o_wins}",
-            f"Empates: {self.stats.ties}",
-            f"Total: {self.stats.total_games}"
+            f"Vitórias X: {self.stats.x_wins}",  # Removido 🔴
+            f"Vitórias O: {self.stats.o_wins}",  # Removido 🔵
+            f"Empates: {self.stats.ties}",  # Removido ⚖️
+            f"Total: {self.stats.total_games}"  # Removido 🎯
         ]
 
         for i, text in enumerate(stats_text):
             rendered = self.font_small.render(text, True, Colors.BLACK)
-            self.screen.blit(rendered, (LEFT_SIDEBAR_X, stats_y + 40 + i * 25))
+            self.screen.blit(rendered, (LEFT_SIDEBAR_X, stats_y + 40 + i * 30))
 
         # Modo atual na lateral direita (abaixo dos botões)
-        mode_y = 300
-        mode_title = self.font_medium.render("MODO ATUAL", True, Colors.BLACK)
+        mode_y = max(350, BOARD_Y + BOARD_SIZE // 3)
+        mode_title = self.font_medium.render("MODO ATUAL", True, Colors.BLACK)  # Removido 🎲
         self.screen.blit(mode_title, (RIGHT_SIDEBAR_X, mode_y))
 
         if self.game_mode == GameMode.HUMAN_VS_HUMAN:
-            mode_text = "Humano vs Humano"
+            mode_text = "Humano vs Humano"  # Removido 👥
         else:
-            mode_text = f"Humano vs CPU ({self.cpu_player.difficulty.title()})"
+            mode_text = f"Humano vs CPU ({self.cpu_player.difficulty.title()})"  # Removido emojis
 
         mode_rendered = self.font_small.render(mode_text, True, Colors.BLACK)
         self.screen.blit(mode_rendered, (RIGHT_SIDEBAR_X, mode_y + 40))
 
         # Legenda de cores
         legend_y = mode_y + 80
-        legend_title = self.font_medium.render("LEGENDA", True, Colors.BLACK)
+        legend_title = self.font_medium.render("LEGENDA", True, Colors.BLACK)  # Removido 🎨
         self.screen.blit(legend_title, (RIGHT_SIDEBAR_X, legend_y))
 
         # X vermelho
-        pygame.draw.line(self.screen, Colors.RED,
-                         (RIGHT_SIDEBAR_X, legend_y + 40),
-                         (RIGHT_SIDEBAR_X + 20, legend_y + 60), 4)
-        pygame.draw.line(self.screen, Colors.RED,
-                         (RIGHT_SIDEBAR_X, legend_y + 60),
-                         (RIGHT_SIDEBAR_X + 20, legend_y + 40), 4)
+        self.draw_x(RIGHT_SIDEBAR_X + 15, legend_y + 50, 10, Colors.RED)
         x_text = self.font_small.render("X - Vermelho", True, Colors.BLACK)
-        self.screen.blit(x_text, (RIGHT_SIDEBAR_X + 30, legend_y + 45))
+        self.screen.blit(x_text, (RIGHT_SIDEBAR_X + 35, legend_y + 42))
 
         # O azul
         o_color = Colors.BLUE  # O sempre azul
@@ -892,10 +949,24 @@ class UltimateTicTacToe:
         else:
             o_label = "O - Azul"
 
-        pygame.draw.circle(self.screen, o_color,
-                           (RIGHT_SIDEBAR_X + 10, legend_y + 85), 10, 4)
+        self.draw_o(RIGHT_SIDEBAR_X + 15, legend_y + 85, 10, o_color)
         o_text = self.font_small.render(o_label, True, Colors.BLACK)
-        self.screen.blit(o_text, (RIGHT_SIDEBAR_X + 30, legend_y + 80))
+        self.screen.blit(o_text, (RIGHT_SIDEBAR_X + 35, legend_y + 77))
+
+        # Explicação da nova regra de desempate
+        rules_y = legend_y + 120
+        rules_title = self.font_medium.render("NOVA REGRA", True, Colors.PURPLE)  # Removido 📋
+        self.screen.blit(rules_title, (RIGHT_SIDEBAR_X, rules_y))
+
+        rules_text = [
+            "Se o jogo maior der empate,",
+            "vence quem conquistou mais",
+            "tabuleiros pequenos!"
+        ]
+
+        for i, text in enumerate(rules_text):
+            rendered = self.font_tiny.render(text, True, Colors.DARK_GRAY)
+            self.screen.blit(rendered, (RIGHT_SIDEBAR_X, rules_y + 30 + i * 18))
 
     def handle_click(self, pos: Tuple[int, int]):
         """Processa cliques do mouse."""
@@ -906,6 +977,9 @@ class UltimateTicTacToe:
                     self.restart_game()
                 elif name == 'clear_stats':
                     self.clear_stats()
+                elif name == 'exit':
+                    pygame.quit()
+                    sys.exit()
                 elif name == 'vs_human':
                     self.set_game_mode(GameMode.HUMAN_VS_HUMAN)
                 elif name == 'vs_cpu_easy':
@@ -938,14 +1012,10 @@ class UltimateTicTacToe:
                 if event.type == pygame.QUIT:
                     running = False
 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.handle_click(event.pos)
-
-                elif event.type == pygame.MOUSEMOTION:
-                    self.handle_mouse_motion(event.pos)
-
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_F11:
+                        running = False
+                    elif event.key == pygame.K_r:
                         self.restart_game()
                     elif event.key == pygame.K_n:
                         self.restart_game()
@@ -957,6 +1027,12 @@ class UltimateTicTacToe:
                         self.set_game_mode(GameMode.HUMAN_VS_CPU, "medium")
                     elif event.key == pygame.K_4:
                         self.set_game_mode(GameMode.HUMAN_VS_CPU, "hard")
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_click(event.pos)
+
+                elif event.type == pygame.MOUSEMOTION:
+                    self.handle_mouse_motion(event.pos)
 
             # Processa jogada da CPU se necessário
             self.process_cpu_move()
@@ -977,9 +1053,7 @@ class UltimateTicTacToe:
         pygame.quit()
         sys.exit()
 
-
 # --- Execução ---
 if __name__ == "__main__":
     game = UltimateTicTacToe()
     game.run()
-
