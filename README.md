@@ -9,6 +9,14 @@
 
 Este projeto apresenta uma versão significativamente aprimorada do clássico jogo Ultimate Tic-Tac-Toe (também conhecido como Jogo da Velha Infinito), desenvolvido em Pygame. Esta edição foi redesenhada para oferecer uma experiência de usuário superior, com uma interface visualmente mais rica, modos de jogo expandidos e uma inteligência artificial da CPU mais sofisticada, capaz de desafiar jogadores em diversos níveis de habilidade.
 
+<br>
+
+<img width="1355" height="767" alt="image" src="https://github.com/user-attachments/assets/0af44358-5c17-4836-bfab-3df335b0bdb1" />
+<img width="1359" height="767" alt="image" src="https://github.com/user-attachments/assets/ce9596c3-da84-4e68-8e4b-3ad4cf9fe67c" />
+<img width="1359" height="767" alt="image" src="https://github.com/user-attachments/assets/12191a66-759d-4bb0-8dda-d0d9ccdccafb" />
+
+<br>
+
 ## ✨ Funcionalidades Destacadas
 
 ### 🎮 Modos de Jogo Versáteis
