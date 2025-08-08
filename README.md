@@ -97,10 +97,6 @@ O Ultimate Tic-Tac-Toe é uma versão mais complexa do jogo da velha tradicional
 
 Sinta-se à vontade para contribuir com melhorias, correções de bugs ou novas funcionalidades. Abra uma issue ou envie um Pull Request no repositório.
 
-## 📄 Licença
-
-Este projeto está licenciado sob a [SUA LICENÇA AQUI, ex: MIT License].
-
 ---
 
  <br>
