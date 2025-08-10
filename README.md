@@ -12,6 +12,7 @@ Este projeto apresenta uma versão significativamente aprimorada do clássico jo
 <br>
 
 <img width="1355" height="767" alt="image" src="https://github.com/user-attachments/assets/0af44358-5c17-4836-bfab-3df335b0bdb1" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/a8e953a5-d070-4cb0-8a7d-9bfbcc5e9c4d" />
 <img width="1359" height="767" alt="image" src="https://github.com/user-attachments/assets/ce9596c3-da84-4e68-8e4b-3ad4cf9fe67c" />
 <img width="1359" height="767" alt="image" src="https://github.com/user-attachments/assets/12191a66-759d-4bb0-8dda-d0d9ccdccafb" />
 
